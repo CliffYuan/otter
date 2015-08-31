@@ -78,7 +78,7 @@ public class StageMonitor extends ArbitrateLifeCycle implements Monitor {
     private ZkClientx                        zookeeper         = ZooKeeperClient.getInstance();
     private volatile List<Long>              currentProcessIds = new ArrayList<Long>();                                       // 当前的处于监控中的processId列表
     private volatile Map<Long, List<String>> currentStages     = new ConcurrentHashMap<Long, List<String>>();                 // 记录下stages信息
-
+    //包括SETL四种集合
     private List<StageListener>              listeners         = Collections.synchronizedList(new ArrayList<StageListener>());
 
     private IZkChildListener                 processListener;
@@ -202,6 +202,7 @@ public class StageMonitor extends ArbitrateLifeCycle implements Monitor {
     private void initStage() {
         // 1. 根据pipelineId构造对应的path
         String path = StagePathUtils.getProcessRoot(getPipelineId());
+        logger.info("---otter-stage-获取pipeline:{},path:{} 中处理中的processId",getPipelineId(),path);
         // 2. 获取当前的所有process列表
         List<String> currentProcesses = zookeeper.getChildren(path);
         initStage(currentProcesses);

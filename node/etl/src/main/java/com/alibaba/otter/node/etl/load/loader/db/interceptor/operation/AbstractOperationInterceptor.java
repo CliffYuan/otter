@@ -110,7 +110,9 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
     }
 
     public void transactionBegin(DbLoadContext context, List<EventData> currentDatas, DbDialect dialect) {
+        //同步标记，设置该标记后会在retl_mark中记录，在messageParse时进行check，相同则忽略
         boolean needInfo = StringUtils.isNotEmpty(context.getPipeline().getParameters().getChannelInfo());
+
         if (context.getChannel().getPipelines().size() > 1 || needInfo) {// 如果是双向同步，需要记录clientId
             String hint = currentDatas.get(0).getHint();
             String sql = needInfo ? updateInfoSql : updateSql;
@@ -158,12 +160,14 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
             if (hint != null) {
                 esql = hint + esql;
             }
+            logger.info("---setl-load-添加同步mark标记,{},{},{},{}",esql, new Object[] { threadId, channel.getId(), info });
             affectedCount = dialect.getJdbcTemplate().update(esql, new Object[] { threadId, channel.getId(), info });
         } else {
             String esql = MessageFormat.format(sql, new Object[] { markTableName, markTableColumn });
             if (hint != null) {
                 esql = hint + esql;
             }
+            logger.info("---setl-load-添加mark标记,{},{},{},{}",esql, new Object[] { threadId, channel.getId() });
             affectedCount = dialect.getJdbcTemplate().update(esql, new Object[] { threadId, channel.getId() });
         }
 

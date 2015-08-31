@@ -41,6 +41,8 @@ import com.alibaba.otter.shared.arbitrate.model.TerminEventData.TerminType;
 import com.alibaba.otter.shared.common.model.config.pipeline.Pipeline;
 
 /**
+ * SETL 基础线程类
+ *
  * mainstem,select,extract,transform,load parent Thread.
  * 
  * @author xiaoqing.zhouxq 2011-8-23 上午10:38:14
@@ -51,11 +53,11 @@ public abstract class GlobalTask extends Thread {
     protected volatile boolean          running = true;
     protected Pipeline                  pipeline;
     protected Long                      pipelineId;
-    protected ArbitrateEventService     arbitrateEventService;
-    protected RowDataPipeDelegate       rowDataPipeDelegate;
+    protected ArbitrateEventService     arbitrateEventService;//事件仲裁
+    protected RowDataPipeDelegate       rowDataPipeDelegate;//data pipe,内部数据流通
     protected ExecutorService           executorService;
-    protected ConfigClientService       configClientService;
-    protected StageAggregationCollector stageAggregationCollector;
+    protected ConfigClientService       configClientService;//配置管理
+    protected StageAggregationCollector stageAggregationCollector;//统计
     protected Map<Long, Future>         pendingFuture;
 
     public GlobalTask(Pipeline pipeline){

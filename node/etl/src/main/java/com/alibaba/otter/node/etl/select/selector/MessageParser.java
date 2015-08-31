@@ -88,8 +88,8 @@ public class MessageParser {
         boolean enableLoopbackRemedy = pipelineParameter.isEnableRemedy() && pipelineParameter.isHome()
                                        && pipelineParameter.getRemedyAlgorithm().isLoopback();
         boolean isLoopback = false;
-        boolean needLoopback = false; // 判断是否属于需要loopback处理的类型，只处理正常otter同步产生的回环数据，因为会有业务方手工屏蔽同步的接口，避免回环
-
+        boolean needLoopback = false; //是否回环 --判断是否属于需要loopback处理的类型，只处理正常otter同步产生的回环数据，因为会有业务方手工屏蔽同步的接口，避免回环
+        logger.info("---Otter select解析数据,是否回环:{},{},",enableLoopbackRemedy,pipeline.getParameters());
         long now = new Date().getTime();
         try {
             for (Entry entry : datas) {
@@ -104,7 +104,7 @@ public class MessageParser {
                         if (isMarkTable) {
                             RowChange rowChange = RowChange.parseFrom(entry.getStoreValue());
                             if (!rowChange.getIsDdl()) {
-                                int loopback = checkLoopback(pipeline, rowChange.getRowDatas(0));
+                                int loopback = checkLoopback(pipeline, rowChange.getRowDatas(0));//1=忽略,2=回环 0=正常
                                 if (loopback == 2) {
                                     needLoopback |= true; // 只处理正常同步产生的回环数据
                                 }
@@ -127,8 +127,10 @@ public class MessageParser {
                             }
                         }
 
-                        if ((!isLoopback || (enableLoopbackRemedy && needLoopback)) && !isMarkTable
-                            && !isCompatibleLoopback) {
+                        if ((!isLoopback                                   //不回环
+                                || (enableLoopbackRemedy && needLoopback)) //是回环
+                                && !isMarkTable            //不是回环标记表 otter4.0
+                                && !isCompatibleLoopback) {//不是回环标记表 otter3.0
                             transactionDataBuffer.add(entry);
                         }
                         break;

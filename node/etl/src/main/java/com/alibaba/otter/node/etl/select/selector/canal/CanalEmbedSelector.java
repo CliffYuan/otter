@@ -232,6 +232,15 @@ public class CanalEmbedSelector implements OtterSelector {
         canalServer.stop();
     }
 
+    /**
+     * add xnd
+     *
+     * 1.从canal获取数据.
+     * 2.过滤事务头/尾和回环数据
+     *
+     * @return
+     * @throws InterruptedException
+     */
     public Message<EventData> selector() throws InterruptedException {
         int emptyTimes = 0;
         com.alibaba.otter.canal.protocol.Message message = null;

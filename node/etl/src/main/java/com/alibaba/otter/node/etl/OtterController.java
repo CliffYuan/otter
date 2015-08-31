@@ -85,6 +85,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
     private StageAggregationCollector             stageAggregationCollector;
 
     public void start() throws Throwable {
+        logger.info("---start()开始");
         // 初始化节点
         initNid();
         nodeTaskService.addListener(this); // 将自己添加为NodeTask响应者
@@ -128,12 +129,12 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
 
         ZooKeeperClient.destory();// 关闭zookeeper
     }
-
+    //启动pipeline
     public boolean process(List<NodeTask> nodeTasks) {
         if (nodeTasks == null || nodeTasks.isEmpty()) {
             return true;
         }
-
+        logger.info("---启动pipeline");
         for (NodeTask nodeTask : nodeTasks) {
             boolean shutdown = nodeTask.isShutdown();
             Long pipelineId = nodeTask.getPipeline().getId();
@@ -178,7 +179,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         if (tasks.get(taskType) != null && tasks.get(taskType).isAlive()) {
             logger.warn("WARN ## this task = {} has started", taskType);
         }
-
+        logger.info("---启动SETL Task开始,pipelineName:{},taskType:{}",pipeline.getName(),taskType);
         GlobalTask task = null;
         if (taskType.isSelect()) {
             task = new SelectTask(pipeline.getId());
@@ -196,6 +197,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
             tasks.put(taskType, task);
             logger.info("INFO ## start this task = {} success", taskType.toString());
         }
+        logger.info("---启动SETL Task结束");
     }
 
     private void stopTask(Map<StageType, GlobalTask> tasks, StageType taskType) {
@@ -244,7 +246,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         }
         logger.info("INFO ## the nodeId = {}", nid);
         checkNidVaild(nid);
-        arbitrateManageService.nodeEvent().init(Long.valueOf(nid));
+        arbitrateManageService.nodeEvent().init(Long.valueOf(nid));//在zk上注册node节点
         // 添加session expired处理
         NodeSessionExpired sessionExpired = new NodeSessionExpired();
         sessionExpired.setNodeEvent(arbitrateManageService.nodeEvent());

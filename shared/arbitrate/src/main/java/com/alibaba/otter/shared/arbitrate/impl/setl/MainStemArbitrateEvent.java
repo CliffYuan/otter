@@ -28,7 +28,7 @@ import com.alibaba.otter.shared.common.model.config.channel.ChannelStatus;
 
 /**
  * 主导线程信号控制
- * 
+ * 主线仲裁,竞争&判断是否为活动节点 add xnd
  * @author jianghang 2011-8-9 下午05:16:16
  */
 public class MainStemArbitrateEvent implements ArbitrateEvent {

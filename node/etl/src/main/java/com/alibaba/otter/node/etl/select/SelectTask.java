@@ -258,8 +258,8 @@ public class SelectTask extends GlobalTask {
                     batchBuffer.put(new BatchTermin(gotMessage.getId(), false));
                     continue;
                 }
-
-                final EtlEventData etlEventData = arbitrateEventService.selectEvent().await(pipelineId);
+                //###todo otter调度模型步骤1 await
+                final EtlEventData etlEventData = arbitrateEventService.selectEvent().await(pipelineId);//令牌生成
                 if (rversion.get() != startVersion) {// 说明存在过变化，中间出现过rollback，需要丢弃该数据
                     logger.warn("rollback happend , should skip this data and get new message.");
                     canStartSelector.get();// 确认一下rollback是否完成
@@ -316,7 +316,7 @@ public class SelectTask extends GlobalTask {
                                     StageType.SELECT,
                                     new AggregationItem(profilingStartTime, profilingEndTime));
                             }
-                            arbitrateEventService.selectEvent().single(etlEventData);
+                            arbitrateEventService.selectEvent().single(etlEventData);//todo ###otter调度模型步骤3 single
                         } catch (Throwable e) {
                             if (!isInterrupt(e)) {
                                 logger.error(String.format("[%s] selectwork executor is error! data:%s",
@@ -340,7 +340,7 @@ public class SelectTask extends GlobalTask {
                     etlEventData.getProcessId(),
                     pendingFuture,
                     task);
-                executorService.execute(extractFuture);
+                executorService.execute(extractFuture);//todo ###otter调度模型步骤2 notify 提交任务到thread pools
 
             } catch (Throwable e) {
                 if (!isInterrupt(e)) {

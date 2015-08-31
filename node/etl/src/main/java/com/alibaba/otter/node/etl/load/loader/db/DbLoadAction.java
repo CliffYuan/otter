@@ -545,6 +545,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
         }
 
         private Exception doCall() {
+            logger.info("---真正的数据落地操作,使用springJdbcTemple进行操作");
             RuntimeException error = null;
             ExecuteResult exeResult = null;
             int index = 0;// 记录下处理成功的记录下标

@@ -29,8 +29,20 @@ public interface LoadInterceptor<L, D> {
      */
     public boolean before(L context, D currentData);
 
+    /**
+     * 添加同步标记--retl mark add xnd
+     * @param context
+     * @param currentDatas
+     * @param dialect
+     */
     public void transactionBegin(L context, List<D> currentDatas, DbDialect dialect);
 
+    /**
+     * 添加同步标记--retl mark add xnd
+     * @param context
+     * @param currentDatas
+     * @param dialect
+     */
     public void transactionEnd(L context, List<D> currentDatas, DbDialect dialect);
 
     public void after(L context, D currentData);

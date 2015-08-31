@@ -30,7 +30,10 @@ import com.alibaba.otter.shared.arbitrate.impl.setl.TransformArbitrateEvent;
  * @author jianghang 2011-8-9 下午04:39:49
  */
 public interface ArbitrateEventService {
-
+    /**
+     * 主线仲裁,竞争&判断是否为活动节点 add xnd
+     * @return
+     */
     public MainStemArbitrateEvent mainStemEvent();
 
     public SelectArbitrateEvent selectEvent();
@@ -41,7 +44,15 @@ public interface ArbitrateEventService {
 
     public LoadArbitrateEvent loadEvent();
 
+    /**
+     * 用于ACK的事件仲裁(load完毕后signal,select进行ACK确认) add xnd
+     * @return
+     */
     public TerminArbitrateEvent terminEvent();
 
+    /**
+     * 辅助工具节点
+     * @return
+     */
     public ToolArbitrateEvent toolEvent();
 }
