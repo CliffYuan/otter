@@ -24,7 +24,9 @@ import com.alibaba.otter.shared.arbitrate.impl.manage.SystemArbitrateEvent;
 
 /**
  * manager的管理信号
- * 
+ *
+ * 管理关联的ArbitrateEvent通过spring注入 add xnd
+ *
  * @author jianghang 2011-9-26 下午07:03:35
  * @version 4.0.0
  */

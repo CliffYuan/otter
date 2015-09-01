@@ -150,6 +150,7 @@ public class ConfigClientServiceImpl implements InternalConfigClientService, Arb
                 try {
                     Object obj = nodeCommmunicationClient.callManager(event);
                     if (obj != null && obj instanceof Node) {
+                        logger.info("---otter-从Manager查询node:{}",obj);
                         return (Node) obj;
                     } else {
                         throw new ConfigException("No Such Node by id[" + key + "]");
