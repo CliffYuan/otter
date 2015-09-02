@@ -246,8 +246,11 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         }
         logger.info("INFO ## the nodeId = {}", nid);
         checkNidVaild(nid);
+
         arbitrateManageService.nodeEvent().init(Long.valueOf(nid));//在zk上注册node节点
+
         // 添加session expired处理
+        // 当zookeeper session过期后重新注册node节点
         NodeSessionExpired sessionExpired = new NodeSessionExpired();
         sessionExpired.setNodeEvent(arbitrateManageService.nodeEvent());
         ZooKeeperClient.registerNotification(sessionExpired);

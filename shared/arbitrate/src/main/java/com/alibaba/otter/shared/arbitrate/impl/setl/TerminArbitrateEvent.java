@@ -22,7 +22,7 @@ public interface TerminArbitrateEvent {
 
     public TerminEventData await(Long pipelineId) throws InterruptedException;
 
-    public void exhaust(Long pipelineId);
+    public void exhaust(Long pipelineId);//排出
 
     public void ack(TerminEventData data);
 

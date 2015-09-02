@@ -57,7 +57,10 @@ import com.google.common.collect.Lists;
  * 1. active一旦产生，出现瞬断，在规定的时间内，其享有优先权
  * 2. active一旦产生，如果主动释放其active权利，其他的standby的节点就有机会立即参与选举
  * </pre>
- * 
+ *
+ * add xnd
+ * (1)监控那个node运行.是否下线当前节点
+ *
  * @author jianghang 2012-10-1 下午02:19:22
  * @version 4.1.0
  */
@@ -116,6 +119,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
         };
 
         String path = StagePathUtils.getMainStem(getPipelineId());
+        logger.info("---otter-MainstemMonitor初始化-添加zookeeper watch path:{}数据变化,并添加定时任务",path);
         zookeeper.subscribeDataChanges(path, dataListener);
         MonitorScheduler.register(this, 5 * 60 * 1000L, 5 * 60 * 1000L); // 5分钟处理一次
     }
@@ -152,6 +156,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
         // 序列化
         byte[] bytes = JsonUtils.marshalToByte(data);
         try {
+            logger.info("---otter--创建MainStem zk path:{}节点,data:{},并且触发监听",path,data);
             mutex.set(false);
             zookeeper.create(path, bytes, CreateMode.EPHEMERAL);
             activeData = data;
@@ -222,6 +227,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
             if (!result) {
                 logger.warn("mainstem is running in node[{}] , but not in node[{}]", eventData.getNid(), nid);
             }
+            logger.info("---otter-mainstem-检测当前节点{}是否是活动节点,从zookeeper获取,path:{},data:{}",result,path,eventData);
             return result;
         } catch (ZkNoNodeException e) {
             logger.warn("mainstem is not run any in node");

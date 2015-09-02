@@ -88,11 +88,16 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         return tasks;
     }
 
+    /**
+     * 以channel为维度,该channel下所有的pipeline下选择的node是当前节点.
+     *
+     */
     private void initNodeTask() {
         // 从manager下获取一下对应的任务列表
         Node node = configClientService.currentNode();
         FindTaskEvent event = new FindTaskEvent();
         event.setNid(node.getId());
+        logger.info("---otter-start--从管理后台获取当前节点的Channel,node:{}",node);
         Object obj = nodeCommmunicationClient.callManager(event);
         if (obj != null) {
             List<Channel> channels = (List<Channel>) obj;
@@ -148,7 +153,7 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         }
         // 处理当前最新的状态
         for (Pipeline pipeline : pipelines) {
-            List<Node> sNodes = pipeline.getSelectNodes();
+            List<Node> sNodes = pipeline.getSelectNodes();//对应SELECT阶段的Node
             for (Node node : sNodes) {
                 if (nid.equals(node.getId())) {// 判断是否为当前的nid
                     NodeTask task = new NodeTask();
@@ -165,7 +170,7 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
                 }
             }
 
-            List<Node> eNodes = pipeline.getExtractNodes();
+            List<Node> eNodes = pipeline.getExtractNodes();//对应Extract阶段的Node
             for (Node node : eNodes) {
                 if (nid.equals(node.getId())) {// 判断是否为当前的nid
                     NodeTask task = new NodeTask();
@@ -181,7 +186,7 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
                 }
             }
 
-            List<Node> tlNodes = pipeline.getLoadNodes();
+            List<Node> tlNodes = pipeline.getLoadNodes();//对应Load阶段的Node
             for (Node node : tlNodes) {
                 if (nid.equals(node.getId())) {// 判断是否为当前的nid
                     NodeTask task = new NodeTask();

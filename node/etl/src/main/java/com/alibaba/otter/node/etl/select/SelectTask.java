@@ -170,7 +170,7 @@ public class SelectTask extends GlobalTask {
         otterSelector.start();
 
         canStartSelector.set(false);// 初始化为false
-        startProcessTermin();
+        startProcessTermin();//ack(canal&otter)
         startProcessSelect();
 
         isStart = true;
@@ -385,8 +385,8 @@ public class SelectTask extends GlobalTask {
                                 }
 
                                 BatchTermin batch = batchBuffer.take();
-                                logger.info("start process termin : {}", batch.toString());
-                                if (batch.isNeedWait()) {
+                                logger.info("start process termin SETL处理完成: {}", batch.toString());
+                                if (batch.isNeedWait()) {//todo 顺序应该不需要等待,猜测 add xnd
                                     lastStatus = processTermin(lastStatus, batch.getBatchId(), batch.getProcessId());
                                 } else {
                                     // 不需要wait的批次，直接以上一个batch的结果决定是否ack
@@ -431,6 +431,15 @@ public class SelectTask extends GlobalTask {
         });
     }
 
+    /**
+     * 1.更新canal ack
+     * 2.更新select ack,从而select可以继续拿数据
+     * @param lastStatus
+     * @param batchId
+     * @param processId
+     * @return
+     * @throws InterruptedException
+     */
     private boolean processTermin(boolean lastStatus, Long batchId, Long processId) throws InterruptedException {
         int retry = 0;
         SelectException exception = null;
@@ -474,13 +483,13 @@ public class SelectTask extends GlobalTask {
         }
 
         if (terminData.getType().isNormal()) {
-            ack(batchId);
+            ack(batchId);//todo ack canal add xnd
             sendDelayStat(pipelineId, terminData.getEndTime(), terminData.getFirstTime());
         } else {
             rollback(batchId);
         }
 
-        arbitrateEventService.terminEvent().ack(terminData); // 先发送对应的数据
+        arbitrateEventService.terminEvent().ack(terminData); //todo 先发送对应的数据 ack otter,select可以继续从canal select数据 add xnd
         return status;
     }
 

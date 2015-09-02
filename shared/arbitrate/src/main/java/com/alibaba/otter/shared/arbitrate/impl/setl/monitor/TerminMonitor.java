@@ -42,7 +42,7 @@ public class TerminMonitor extends ArbitrateLifeCycle implements Monitor {
     private static final Logger logger         = LoggerFactory.getLogger(TerminMonitor.class);
 
     private ZkClientx           zookeeper      = ZooKeeperClient.getInstance();
-    private TerminProcessQueue  waitProcessIds = new TerminProcessQueue();                    // 记录对应的终结信号数据，从小到大的排序
+    private TerminProcessQueue  waitProcessIds = new TerminProcessQueue(); // 记录对应的终结信号数据，从小到大的排序
     private IZkChildListener    childListener;
 
     public TerminMonitor(Long pipelineId){
@@ -58,6 +58,7 @@ public class TerminMonitor extends ArbitrateLifeCycle implements Monitor {
 
         String path = StagePathUtils.getTerminRoot(getPipelineId());
         List<String> childs = zookeeper.subscribeChildChanges(path, childListener);
+        logger.info("---otter--TerminMonitor初始化,订阅path:{}子节点变化",path);
         initTermin(childs);
         MonitorScheduler.register(this);
     }

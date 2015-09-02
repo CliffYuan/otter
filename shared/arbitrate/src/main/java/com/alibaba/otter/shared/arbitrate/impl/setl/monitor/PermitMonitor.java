@@ -49,7 +49,10 @@ import com.alibaba.otter.shared.common.utils.zookeeper.ZkClientx;
  * 1. channel的status状态
  * 2. 当前pipeline的mainStem状态 &　反向同步的pipeline的mainStem状态
  * </pre>
- * 
+ *
+ * add xnd
+ * 1.监控当前channel状态和Pipeline的mainStem状态,是否阻塞当前操作.
+ *
  * @author jianghang
  */
 public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
@@ -62,7 +65,7 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
     private MainStemEventData.Status oppositeMainStemStatus = MainStemEventData.Status.TAKEING;                             // 反方向的pipeline的mainStem状态
 
     private ExecutorService          arbitrateExecutor;
-    private BooleanMutex             permitMutex            = new BooleanMutex(false);                                      // 控制器
+    private BooleanMutex             permitMutex            = new BooleanMutex(false); //控制器,控制select是否阻塞, MainStem==TAKEING&&channelStatus=START
     private BooleanMutex             channelMutex           = new BooleanMutex(false);
     private List<PermitListener>     listeners              = Collections.synchronizedList(new ArrayList<PermitListener>());
     private volatile boolean         existOpposite          = false;
@@ -87,7 +90,7 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
         };
         String path = StagePathUtils.getChannel(getPipelineId());
         zookeeper.subscribeDataChanges(path, channelDataListener);
-
+        logger.info("---otter-PermitMonitor初始化,zookeeper添加path:{}数据变化监控",path);
         mainstemDataListener = new IZkDataListener() {
 
             public void handleDataChange(String dataPath, Object data) throws Exception {
@@ -103,7 +106,7 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
 
         path = StagePathUtils.getMainStem(getPipelineId());
         zookeeper.subscribeDataChanges(path, mainstemDataListener);
-
+        logger.info("---otter-PermitMonitor初始化,zookeeper添加path:{}数据变化监控",path);
         initChannelStatus();
         initMainStemStatus();
         // syncChannelStatus();
@@ -456,24 +459,20 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
     private void permitSem() {
         if (channelStatus.isStart()) {
             channelMutex.set(true);
-            logger.debug("channel status is ok!");
+            logger.info("channel status is ok!pipeline:{}",getPipelineId());
         } else {
             channelMutex.set(false);
-            logger.debug("channel status is fail!");
+            logger.info("channel status is fail!pipeline:{}",getPipelineId());
         }
 
         boolean permit = isPermit(false);
         if (permit == false) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Permit is fail!");
-            }
+            logger.info("Permit is fail!,pipeline:{}",getPipelineId());
             // 如果未授权，则设置信号量为0
             permitMutex.set(false);
         } else {
             // 信号量+1
-            if (logger.isDebugEnabled()) {
-                logger.debug("Permit is Ok!");
-            }
+            logger.info("Permit is Ok!,pipeline:{}",getPipelineId());
             permitMutex.set(true);
         }
 

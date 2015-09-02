@@ -28,7 +28,7 @@ import com.alibaba.otter.shared.common.model.config.pipeline.Pipeline;
 
 /**
  * S.E.T.L阶段模块的任务
- * 
+ * 一个pipeline对应一个nodeTask
  * @author jianghang
  */
 public class NodeTask implements Serializable {

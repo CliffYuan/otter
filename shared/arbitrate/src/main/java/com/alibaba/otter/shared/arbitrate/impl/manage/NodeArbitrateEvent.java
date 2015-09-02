@@ -29,6 +29,8 @@ import com.alibaba.otter.shared.arbitrate.impl.ArbitrateEvent;
 import com.alibaba.otter.shared.arbitrate.impl.manage.helper.ManagePathUtils;
 import com.alibaba.otter.shared.arbitrate.impl.zookeeper.ZooKeeperClient;
 import com.alibaba.otter.shared.common.utils.zookeeper.ZkClientx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 机器node节点的相关信号
@@ -36,6 +38,8 @@ import com.alibaba.otter.shared.common.utils.zookeeper.ZkClientx;
  * @author jianghang 2011-8-31 下午07:26:02
  */
 public class NodeArbitrateEvent implements ArbitrateEvent {
+
+    private static final Logger logger      = LoggerFactory.getLogger(NodeArbitrateEvent.class);
 
     private ZkClientx zookeeper = ZooKeeperClient.getInstance();
 
@@ -48,7 +52,7 @@ public class NodeArbitrateEvent implements ArbitrateEvent {
      */
     public void init(Long nid) {
         String path = ManagePathUtils.getNode(nid);
-
+        logger.info("---otter-start-在zookeeper上注册临时node节点,{}",path);
         try {
             zookeeper.create(path, new byte[0], CreateMode.EPHEMERAL);// 创建为临时节点
         } catch (ZkException e) {
