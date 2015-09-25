@@ -304,8 +304,8 @@ public class SelectTask extends GlobalTask {
                             }
 
                             long nextNodeId = etlEventData.getNextNid();
-                            List<PipeKey> pipeKeys = rowDataPipeDelegate.put(new DbBatch(rowBatch), nextNodeId);
-                            etlEventData.setDesc(pipeKeys);
+                            List<PipeKey> pipeKeys = rowDataPipeDelegate.put(new DbBatch(rowBatch), nextNodeId);//真实数据流转通道
+                            etlEventData.setDesc(pipeKeys);//真实传输中只关联pipe中的key
                             etlEventData.setNumber((long) eventData.size());
                             etlEventData.setFirstTime(startTime); // 使用原始数据的第一条
                             etlEventData.setBatchId(message.getId());

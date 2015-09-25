@@ -132,6 +132,7 @@ public class SelectZooKeeperArbitrateEvent implements SelectArbitrateEvent {
         byte[] bytes = JsonUtils.marshalToByte(data, SerializerFeature.WriteClassName);
         try {
             zookeeper.create(path, bytes, CreateMode.PERSISTENT);
+            logger.info("---otter--Select--在zk中更新的processId:{},Select阶段完成",path);
         } catch (ZkNoNodeException e) {
             // process节点不存在，出现了rollback/shutdown操作，直接忽略
             logger.warn("pipelineId[{}] select ignore processId[{}] single by data:{}",
@@ -159,6 +160,7 @@ public class SelectZooKeeperArbitrateEvent implements SelectArbitrateEvent {
         eventData.setMode(ArbitrateMode.ZOOKEEPER);// 直接声明为zookeeper模式
         byte[] bytes = JsonUtils.marshalToByte(eventData);
         zookeeper.writeData(path, bytes);
+        logger.info("---otter--Select--在zk中更新的processId:{},已经使用",path);
     }
 
     // public void setTerminEvent(TerminArbitrateEvent terminEvent) {

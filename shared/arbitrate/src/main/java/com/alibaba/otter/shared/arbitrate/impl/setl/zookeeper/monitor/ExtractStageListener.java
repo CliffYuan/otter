@@ -51,6 +51,13 @@ public class ExtractStageListener extends AbstractStageListener implements Stage
         // do nothing
     }
 
+    /**
+     * 1.有当前节点,跳过不处理.
+     * 2.没有当前节点,有上一步节点,则添加到该stage阶段列表.
+     * add xnd
+     * @param processId
+     * @param stageNodes
+     */
     public void stageChannged(Long processId, List<String> stageNodes) {
         try {
             // 1. 根据pipelineId+processId构造对应的path

@@ -227,7 +227,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
             if (!result) {
                 logger.warn("mainstem is running in node[{}] , but not in node[{}]", eventData.getNid(), nid);
             }
-            logger.info("---otter-mainstem-检测当前节点{}是否是活动节点,从zookeeper获取,path:{},data:{}",result,path,eventData);
+            logger.debug("---otter-mainstem-检测当前节点是否是活动节点:{},从zookeeper获取,path:{},data:{}",result,path,eventData);
             return result;
         } catch (ZkNoNodeException e) {
             logger.warn("mainstem is not run any in node");

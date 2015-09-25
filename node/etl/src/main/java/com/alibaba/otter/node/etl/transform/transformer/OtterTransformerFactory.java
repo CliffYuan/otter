@@ -66,7 +66,7 @@ public class OtterTransformerFactory {
             Long tableId = eventData.getTableId();
             Pipeline pipeline = configClientService.findPipeline(identity.getPipelineId());
             // 针对每个同步数据，可能会存在多路复制的情况
-            List<DataMediaPair> dataMediaPairs = ConfigHelper.findDataMediaPairByMediaId(pipeline, tableId);
+            List<DataMediaPair> dataMediaPairs = ConfigHelper.findDataMediaPairByMediaId(pipeline, tableId);//todo 存在一对多的映射同步关系,db1->db2,db1->db3 add xnd
             for (DataMediaPair pair : dataMediaPairs) {
                 if (!pair.getSource().getId().equals(tableId)) { // 过滤tableID不为源的同步
                     continue;

@@ -77,7 +77,7 @@ public class LoadStageListener extends AbstractStageListener implements StageLis
                 EtlEventData eventData = JsonUtils.unmarshalFromByte(data, EtlEventData.class);
                 if (eventData.getNextNid().equals(ArbitrateConfigUtils.getCurrentNid())) {
                     List<Long> currentProcessIds = stageMonitor.getCurrentProcessIds(false);
-                    if (currentProcessIds.contains(processId) && currentProcessIds.get(0).equals(processId)) {
+                    if (currentProcessIds.contains(processId) && currentProcessIds.get(0).equals(processId)) {//todo 判断processId是否是最小的
                         // 判断是否是当前最小的processId节点，轮到自己处理了
                         addReply(processId);// 添加到返回队列,唤醒wait阻塞
                     }

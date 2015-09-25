@@ -22,9 +22,11 @@ import java.util.List;
 import com.alibaba.otter.node.etl.common.db.dialect.DbDialect;
 import com.alibaba.otter.node.etl.load.loader.LoadContext;
 import com.alibaba.otter.shared.etl.model.ObjectData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChainLoadInterceptor extends AbstractLoadInterceptor<LoadContext, ObjectData> {
-
+    protected final Logger logger  = LoggerFactory.getLogger(this.getClass());
     private List<LoadInterceptor> interceptors = new ArrayList<LoadInterceptor>();
 
     public void prepare(LoadContext context) {
@@ -33,6 +35,7 @@ public class ChainLoadInterceptor extends AbstractLoadInterceptor<LoadContext, O
         }
 
         for (LoadInterceptor interceptor : interceptors) {
+            logger.info("---otter---l-interceptor.prepare.interceptor:"+interceptor);
             interceptor.prepare(context);
         }
     }

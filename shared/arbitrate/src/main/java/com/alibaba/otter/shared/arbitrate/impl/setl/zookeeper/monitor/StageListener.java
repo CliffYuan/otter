@@ -19,7 +19,7 @@ package com.alibaba.otter.shared.arbitrate.impl.setl.zookeeper.monitor;
 import java.util.List;
 
 /**
- * S.E.T.L模块监控的实现
+ * S.E.T.L模块监控的实现,zookeeper版本使用
  * 
  * <pre>
  * 1. 合并S.E.T.L各类事件的监听，减少和zookeeper的交互
@@ -33,6 +33,7 @@ public interface StageListener {
 
     /**
      * 触发process变化，传递了变化后最新的processIds列表
+     * todo 只有select使用 add xnd
      */
     public void processChanged(List<Long> processIds);
 
@@ -43,6 +44,7 @@ public interface StageListener {
 
     /**
      * 单个process stage节点发生变化，传递了变化后最新的stage列表
+     * todo 只有E.T.L使用 add xnd
      */
     public void stageChannged(Long processId, List<String> stageNodes);
 }

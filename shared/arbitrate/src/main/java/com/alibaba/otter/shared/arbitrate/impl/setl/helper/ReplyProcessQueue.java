@@ -40,7 +40,7 @@ public class ReplyProcessQueue {
 
     private static final Object            PRESENT  = new Object();
     private LRULinkedHashMap<Long, Object> history;                             // 记录一下最近分配出去的processId，容量必须>当前并行度
-    private PriorityQueue<Long>            tables   = new PriorityQueue<Long>();
+    private PriorityQueue<Long>            tables   = new PriorityQueue<Long>();//默认小的排在前面
     private ReentrantLock                  lock     = new ReentrantLock();
     private Condition                      notEmpty = lock.newCondition();
 

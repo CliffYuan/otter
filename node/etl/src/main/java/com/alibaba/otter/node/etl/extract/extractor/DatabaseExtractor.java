@@ -94,8 +94,8 @@ public class DatabaseExtractor extends AbstractExtractor<DbBatch> implements Ini
         Assert.notNull(dbBatch.getRowBatch());
         // 读取配置
         Pipeline pipeline = getPipeline(dbBatch.getRowBatch().getIdentity().getPipelineId());
-        boolean mustDb = pipeline.getParameters().getSyncConsistency().isMedia();
-        boolean isRow = pipeline.getParameters().getSyncMode().isRow();// 如果是行记录是必须进行数据库反查
+        boolean mustDb = pipeline.getParameters().getSyncConsistency().isMedia();//基于当前介质最新数据
+        boolean isRow = pipeline.getParameters().getSyncMode().isRow();// 如果是行记录是必须进行数据库反查,另一种是字段记录
         // 读取一次配置
         adjustPoolSize(pipeline.getParameters().getExtractPoolSize()); // 调整下线程池，Extractor会被池化处理
         ExecutorCompletionService completionService = new ExecutorCompletionService(executor);
@@ -378,6 +378,7 @@ public class DatabaseExtractor extends AbstractExtractor<DbBatch> implements Ini
                             column.setColumnValue(newColumnValues.get(i));
                             column.setUpdate(true);
                             newEventColumns.add(column);
+                            logger.info("---otter--E-反查结果:",column);
                         }
 
                         // 处理下columns中不在反查字段内的字段列表
@@ -444,6 +445,7 @@ public class DatabaseExtractor extends AbstractExtractor<DbBatch> implements Ini
                 tableName,
                 keyTableData.columnNames,
                 columnTableData.columnNames);
+            logger.info("---otter--E-数据库反查:{}",selectSql);
             Exception exception = null;
             for (int i = 0; i < retryTimes; i++) {
                 if (Thread.currentThread().isInterrupted()) {

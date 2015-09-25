@@ -24,6 +24,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.otter.shared.arbitrate.impl.config.ArbitrateConfigUtils;
@@ -38,14 +40,17 @@ import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 
 /**
+ *
+ * 初始化生成一部分processId
+ *
  * @author jianghang 2012-9-27 下午10:12:35
  * @version 4.1.0
  */
 public class MemoryStageController extends ArbitrateLifeCycle {
-
+    protected final Logger logger  = LoggerFactory.getLogger(this.getClass());
     private AtomicLong                        atomicMaxProcessId = new AtomicLong(0);
     private Map<StageType, ReplyProcessQueue> replys;
-    private Map<Long, StageProgress>          progress;
+    private Map<Long, StageProgress>          progress;//处理中的
     private BlockingQueue<TerminEventData>    termins;
     private StageProgress                     nullProgress       = new StageProgress();
 
@@ -150,7 +155,7 @@ public class MemoryStageController extends ArbitrateLifeCycle {
                     result = true;
                 }
                 // 并不是立即触发，通知最小的一个process启动
-                computeNextLoad();
+                computeNextLoad(); // todo 判断processId是否是最小的,是的话添加到load阶段.  add xnd
                 break;
             case LOAD:
                 Object removed = progress.remove(etlEventData.getProcessId());
@@ -158,7 +163,7 @@ public class MemoryStageController extends ArbitrateLifeCycle {
                 computeNextLoad();
                 // 一个process完成了，自动添加下一个process
                 if (removed != null) {
-                    replys.get(StageType.SELECT).offer(atomicMaxProcessId.incrementAndGet());
+                    replys.get(StageType.SELECT).offer(atomicMaxProcessId.incrementAndGet());//todo 添加processId add xnd
                     result = true;
                 }
                 break;
@@ -189,6 +194,9 @@ public class MemoryStageController extends ArbitrateLifeCycle {
         return termins.take();
     }
 
+    /**
+     * 初始化生成部分processId
+     */
     private synchronized void initSelect() {
         // 第一次/出现ROLLBACK/RESTART事件，删除了所有调度信号后，重新初始化一下select
         // stage的数据，初始大小为并行度大小
@@ -196,8 +204,9 @@ public class MemoryStageController extends ArbitrateLifeCycle {
         ReplyProcessQueue queue = replys.get(StageType.SELECT);
         int parallelism = ArbitrateConfigUtils.getParallelism(getPipelineId());
         while (parallelism-- > 0 && queue.size() <= parallelism) {
-            queue.offer(atomicMaxProcessId.incrementAndGet());
+            queue.offer(atomicMaxProcessId.incrementAndGet());//todo
         }
+        logger.info("---otter--初始化Stage中的processId,并行度:{}",parallelism);
     }
 
     /**

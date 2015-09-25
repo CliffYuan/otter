@@ -52,11 +52,11 @@ public class LogInterceptor implements MethodInterceptor {
         try {
             result = methodInvocation.proceed();
         } catch (Exception e) {
-            dump(methodInvocation, e, System.currentTimeMillis() - startTime);// 记录异常信息
+          //  dump(methodInvocation, e, System.currentTimeMillis() - startTime);// todo 记录异常信息
             throw e;
         }
         // 记录异常信息
-        dump(methodInvocation, result, System.currentTimeMillis() - startTime); // 记录正常结果信息
+        // dump(methodInvocation, result, System.currentTimeMillis() - startTime); //todo 记录正常结果信息
         return result;
     }
 

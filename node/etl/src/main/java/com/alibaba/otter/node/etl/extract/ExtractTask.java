@@ -68,7 +68,7 @@ public class ExtractTask extends GlobalTask {
                             pipeline = configClientService.findPipeline(pipelineId);
                             List<PipeKey> keys = (List<PipeKey>) etlEventData.getDesc();
                             long nextNodeId = etlEventData.getNextNid();
-                            DbBatch dbBatch = rowDataPipeDelegate.get(keys);
+                            DbBatch dbBatch = rowDataPipeDelegate.get(keys);//从pipe中获取数据进行处理
 
                             // 可能拿到为null，因为内存不足或者网络异常，长时间阻塞时，导致从pipe拿数据出现异常，数据可能被上一个节点已经删除
                             if (dbBatch == null) {

@@ -20,11 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -127,13 +123,14 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
             context.setDataMediaSource(ConfigHelper.findDataMedia(context.getPipeline(), datas.get(0).getTableId())
                 .getSource());
             interceptor.prepare(context);
+            logger.info("#####################---otter-l-开启事务操作,interceptor:"+interceptor);
             // 执行重复录入数据过滤
             datas = context.getPrepareDatas();
             // 处理下ddl语句，ddl/dml语句不可能是在同一个batch中，由canal进行控制
             // 主要考虑ddl的幂等性问题，尽可能一个ddl一个batch，失败或者回滚都只针对这条sql
             if (isDdlDatas(datas)) {
                 doDdl(context, datas);
-            } else {
+            } else {//todo row模式？？
                 WeightBuckets<EventData> buckets = buildWeightBuckets(context, datas);
                 List<Long> weights = buckets.weights();
                 controller.start(weights);// weights可能为空，也得调用start方法
@@ -164,6 +161,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                 }
             }
             interceptor.commit(context);
+            logger.info("#####################---otter-l-事务提交操作,interceptor:"+interceptor);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             interceptor.error(context);
@@ -248,7 +246,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
         if (context.getPipeline().getParameters().isDryRun()) {
             doDryRun(context, batchDatas, true);
         } else {
-            doTwoPhase(context, batchDatas, true);
+            doTwoPhase(context, batchDatas, true);//执行sql
         }
         batchDatas.clear();
 
@@ -348,6 +346,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
      * @param eventDatas
      */
     private void doDdl(DbLoadContext context, List<EventData> eventDatas) {
+        final int batch=new Random().nextInt(1000);
         for (final EventData data : eventDatas) {
             DataMedia dataMedia = ConfigHelper.findDataMedia(context.getPipeline(), data.getTableId());
             final DbDialect dbDialect = dbDialectFactory.getDbDialect(context.getIdentity().getPipelineId(),
@@ -363,6 +362,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                             result &= stmt.execute("use " + data.getDdlSchemaName());
                         }
                         result &= stmt.execute(data.getSql());
+                        logger.info("---otter-load-执行入库操作,batch:"+batch+",Schema:"+data.getDdlSchemaName()+",sql:"+data.getSql());
                         return result;
                     }
                 });
@@ -576,6 +576,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                             // 处理batch
                             final String sql = splitDatas.get(0).getSql();
                             int[] affects = new int[splitDatas.size()];
+                            logger.info("###############---otter---执行批量操作：sql:"+sql);
                             affects = (int[]) dbDialect.getTransactionTemplate().execute(new TransactionCallback() {
 
                                 public Object doInTransaction(TransactionStatus status) {

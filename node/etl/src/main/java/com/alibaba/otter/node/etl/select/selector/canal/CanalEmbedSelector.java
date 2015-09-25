@@ -161,7 +161,7 @@ public class CanalEmbedSelector implements OtterSelector {
 
                         if (eventParser instanceof MysqlEventParser) {
                             // 设置支持的类型
-                            ((MysqlEventParser) eventParser).setSupportBinlogFormats("ROW");
+                            ((MysqlEventParser) eventParser).setSupportBinlogFormats("ROW,STATEMENT,MIXED");
                             if (syncFull) {
                                 ((MysqlEventParser) eventParser).setSupportBinlogImages("FULL");
                             } else {

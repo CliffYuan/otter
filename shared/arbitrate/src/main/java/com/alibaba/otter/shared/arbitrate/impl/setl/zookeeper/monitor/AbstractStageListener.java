@@ -41,7 +41,7 @@ public abstract class AbstractStageListener extends ArbitrateLifeCycle implement
 
     protected static final Logger logger    = LoggerFactory.getLogger(AbstractStageListener.class);
     protected ZkClientx           zookeeper = ZooKeeperClient.getInstance();
-    protected ReplyProcessQueue   replyProcessIds;                                                 // 有响应的processId列表
+    protected ReplyProcessQueue   replyProcessIds;                   // 有响应的processId列表
     protected ReentrantLock       lock      = new ReentrantLock();
     protected StageMonitor        stageMonitor;
 
@@ -81,7 +81,7 @@ public abstract class AbstractStageListener extends ArbitrateLifeCycle implement
     public Long waitForProcess() throws InterruptedException {
         // take和history.put操作非原子，addReply操作时会出现并发问题，同一个processId插入两次
         Long processId = (Long) replyProcessIds.take();
-        logger.debug("## {} get reply id [{}]", ClassUtils.getShortClassName(this.getClass()), processId);
+        logger.info("## {} get reply id [{}]", ClassUtils.getShortClassName(this.getClass()), processId);
         return processId;
     }
 

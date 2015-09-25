@@ -35,7 +35,9 @@ import com.alibaba.otter.shared.common.utils.JsonUtils;
 
 /**
  * 处理select模块节点的监控
- * 
+ *
+ * 生成processId add xnd
+ *
  * <pre>
  * 监控内容：
  *  1. process节点变化后，判断是否小于并行度，创建新的process节点
@@ -60,6 +62,10 @@ public class SelectStageListener extends AbstractStageListener implements StageL
         recovery(getPipelineId());
     }
 
+    /**
+     * 当现有process小于并行度时添加生成processId add xnd
+     * @param processIds
+     */
     public void processChanged(List<Long> processIds) {
         super.processChanged(processIds);
         // add by ljh at 2012-09-13,解决zookeeper ConnectionLoss问题
@@ -109,8 +115,11 @@ public class SelectStageListener extends AbstractStageListener implements StageL
                         nodeData.setStatus(ProcessNodeEventData.Status.UNUSED);// 标记为未使用
                         nodeData.setNid(ArbitrateConfigUtils.getCurrentNid());
                         byte[] nodeBytes = JsonUtils.marshalToByte(nodeData);
+
                         String processPath = zookeeper.create(path + "/", nodeBytes, CreateMode.PERSISTENT_SEQUENTIAL);
-                        // 创建为顺序的节点
+                        // 创建为顺序的节点 //todo 生成processId add xnd
+                        logger.info("---otter--Select--在zk中生成新的processId:{},path:{}",processPath,path);
+
                         String processNode = StringUtils.substringAfterLast(processPath, "/");
                         Long processId = StagePathUtils.getProcessId(processNode);// 添加到当前的process列表
                         addReply(processId);

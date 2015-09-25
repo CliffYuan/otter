@@ -85,6 +85,8 @@ public class MessageParser {
         List<Entry> transactionDataBuffer = new ArrayList<Entry>();
         // hz为主站点，us->hz的数据，需要回环同步会us。并且需要开启回环补救算法
         PipelineParameter pipelineParameter = pipeline.getParameters();
+
+        //一致性算法&&主站&&单项回环补救(普通模式-全部覆盖)
         boolean enableLoopbackRemedy = pipelineParameter.isEnableRemedy() && pipelineParameter.isHome()
                                        && pipelineParameter.getRemedyAlgorithm().isLoopback();
         boolean isLoopback = false;
@@ -230,7 +232,7 @@ public class MessageParser {
         // 检查channel_info字段
         // 首先检查下after记录，从无变有的过程，一般出现在事务头
         Column infokColumn = getColumnIgnoreCase(rowData.getAfterColumnsList(), pipeline.getParameters()
-            .getSystemMarkTableInfo());
+            .getSystemMarkTableInfo());//开始infokColumn==null,
 
         // 匹配对应的channelInfo，如果以_SYNC结尾，则认为需要忽略
         if (infokColumn != null && StringUtils.endsWithIgnoreCase(infokColumn.getValue(), RETL_CLIENT_FLAG)) {
@@ -244,7 +246,7 @@ public class MessageParser {
         }
 
         infokColumn = getColumnIgnoreCase(rowData.getBeforeColumnsList(), pipeline.getParameters()
-            .getSystemMarkTableInfo());
+            .getSystemMarkTableInfo());//开始infokColumn !=null,
         // 匹配对应的channelInfo，如果以_SYNC结尾，则认为需要忽略
         if (infokColumn != null && StringUtils.endsWithIgnoreCase(infokColumn.getValue(), RETL_CLIENT_FLAG)) {
             return 1;
@@ -415,7 +417,7 @@ public class MessageParser {
         eventData.setExecuteTime(entry.getHeader().getExecuteTime());
         EventType eventType = eventData.getEventType();
         TableInfoHolder tableHolder = null;
-
+        //不是系统表 add xnd
         if (!StringUtils.equalsIgnoreCase(pipeline.getParameters().getSystemSchema(), eventData.getSchemaName())) {
             boolean useTableTransform = pipeline.getParameters().getUseTableTransform();
             Table table = null;

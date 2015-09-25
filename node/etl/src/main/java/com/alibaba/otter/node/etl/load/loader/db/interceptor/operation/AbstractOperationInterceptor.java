@@ -160,14 +160,14 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
             if (hint != null) {
                 esql = hint + esql;
             }
-            logger.info("---setl-load-添加同步mark标记,{},{},{},{}",esql, new Object[] { threadId, channel.getId(), info });
+            logger.info("########回环标记#######---setl-load-添加同步mark标记,sql:{},值：{},{},{}", new Object[] {esql, threadId, channel.getId(), info });
             affectedCount = dialect.getJdbcTemplate().update(esql, new Object[] { threadId, channel.getId(), info });
         } else {
             String esql = MessageFormat.format(sql, new Object[] { markTableName, markTableColumn });
             if (hint != null) {
                 esql = hint + esql;
             }
-            logger.info("---setl-load-添加mark标记,{},{},{},{}",esql, new Object[] { threadId, channel.getId() });
+            logger.info("########回环标记#######---setl-load-添加mark标记,sql:{},值：{},{}", new Object[] { esql,threadId, channel.getId() });
             affectedCount = dialect.getJdbcTemplate().update(esql, new Object[] { threadId, channel.getId() });
         }
 
