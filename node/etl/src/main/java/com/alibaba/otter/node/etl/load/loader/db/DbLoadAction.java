@@ -122,8 +122,8 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
             // 设置media source时，只需要取第一节点的source即可
             context.setDataMediaSource(ConfigHelper.findDataMedia(context.getPipeline(), datas.get(0).getTableId())
                 .getSource());
+            logger.info("@@@@@--load-阶段开始,EventData Size:{},interceptor:{}",datas.size(),interceptor);
             interceptor.prepare(context);
-            logger.info("#####################---otter-l-开启事务操作,interceptor:"+interceptor);
             // 执行重复录入数据过滤
             datas = context.getPrepareDatas();
             // 处理下ddl语句，ddl/dml语句不可能是在同一个batch中，由canal进行控制
@@ -160,8 +160,9 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                     logger.debug("##end load for weight:" + weight);
                 }
             }
+
             interceptor.commit(context);
-            logger.info("#####################---otter-l-事务提交操作,interceptor:"+interceptor);
+            logger.info("@@@@@--load-阶段结束,interceptor:"+interceptor);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             interceptor.error(context);
@@ -545,7 +546,6 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
         }
 
         private Exception doCall() {
-            logger.info("---真正的数据落地操作,使用springJdbcTemple进行操作");
             RuntimeException error = null;
             ExecuteResult exeResult = null;
             int index = 0;// 记录下处理成功的记录下标
@@ -576,7 +576,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                             // 处理batch
                             final String sql = splitDatas.get(0).getSql();
                             int[] affects = new int[splitDatas.size()];
-                            logger.info("###############---otter---执行批量操作：sql:"+sql);
+                            logger.info("@@@@-load--阶段---执行批量JdbcTemplate操作：sql:"+sql);
                             affects = (int[]) dbDialect.getTransactionTemplate().execute(new TransactionCallback() {
 
                                 public Object doInTransaction(TransactionStatus status) {
@@ -612,6 +612,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                         } else {
                             final EventData data = splitDatas.get(0);// 直接取第一条
                             int affect = 0;
+                            logger.info("@@@@-load--阶段---执行JdbcTemplate操作：sql:"+data.getSql());
                             affect = (Integer) dbDialect.getTransactionTemplate().execute(new TransactionCallback() {
 
                                 public Object doInTransaction(TransactionStatus status) {

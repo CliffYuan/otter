@@ -84,8 +84,10 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
             transactionTemplate.execute(new TransactionCallback() {
 
                 public Object doInTransaction(TransactionStatus status) {
+                    logger.info("########回环标记#######,初始化操作,sql:"+deleteDataSql+",data:"+markTableName);
                     jdbcTemplate.execute(MessageFormat.format(deleteDataSql, markTableName));
                     String batchSql = MessageFormat.format(updateSql, new Object[] { markTableName, markTableColumn });
+                    logger.info("########回环标记#######,初始化操作,sql:"+updateSql+",data:"+markTableName+","+markTableColumn);
                     jdbcTemplate.batchUpdate(batchSql, new BatchPreparedStatementSetter() {
 
                         public void setValues(PreparedStatement ps, int idx) throws SQLException {
@@ -160,14 +162,14 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
             if (hint != null) {
                 esql = hint + esql;
             }
-            logger.info("########回环标记#######---setl-load-添加同步mark标记,sql:{},值：{},{},{}", new Object[] {esql, threadId, channel.getId(), info });
+            logger.info("########回环标记#######---updateInfo-添加mark标记,sql:{},值：{},{},{}", new Object[] {esql, threadId, channel.getId(), info });
             affectedCount = dialect.getJdbcTemplate().update(esql, new Object[] { threadId, channel.getId(), info });
         } else {
             String esql = MessageFormat.format(sql, new Object[] { markTableName, markTableColumn });
             if (hint != null) {
                 esql = hint + esql;
             }
-            logger.info("########回环标记#######---setl-load-添加mark标记,sql:{},值：{},{}", new Object[] { esql,threadId, channel.getId() });
+            logger.info("########回环标记#######---update-添加mark标记,sql:{},值：{},{}", new Object[] { esql,threadId, channel.getId() });
             affectedCount = dialect.getJdbcTemplate().update(esql, new Object[] { threadId, channel.getId() });
         }
 

@@ -106,11 +106,11 @@ public class MessageParser {
                         if (isMarkTable) {
                             RowChange rowChange = RowChange.parseFrom(entry.getStoreValue());
                             if (!rowChange.getIsDdl()) {
-                                int loopback = checkLoopback(pipeline, rowChange.getRowDatas(0));//1=忽略,2=回环 0=正常
+                                int loopback = checkLoopback(pipeline, rowChange.getRowDatas(0));//1=忽略(标记表值为_SYNC),2=回环（是回环标注，根据是否是主站确定是否需要同步） 0=正常（同步数据）
                                 if (loopback == 2) {
                                     needLoopback |= true; // 只处理正常同步产生的回环数据
                                 }
-
+                                logger.info("@@@@-select-" + "是同步标注表，tableName:{}，loopback:{}" , tableName,loopback);
                                 isLoopback |= loopback > 0;
                             }
                         }
@@ -134,7 +134,24 @@ public class MessageParser {
                                 && !isMarkTable            //不是回环标记表 otter4.0
                                 && !isCompatibleLoopback) {//不是回环标记表 otter3.0
                             transactionDataBuffer.add(entry);
+                        } else {
+                            // logger.info("@@@@-select-"+"是回环数据，data:"+MessageDumper.dumpEventDatas(internParse(pipeline, entry)));
+                            // logger.info("@@@@-select-"+"是回环数据，tableName:"+tableName);
                         }
+
+                        if (!isMarkTable && !isCompatibleLoopback) {
+                             if(!isLoopback){
+                                logger.info("@@@@-select-" + "不是回环数据，添加到待处理列表，tableName:" + tableName);
+                             }else if ((enableLoopbackRemedy && needLoopback)) {
+                                logger.info("@@@@-select-" + "是回环数据，添加到待处理列表，tableName:" + tableName);
+                             }else {
+                                 logger.info("@@@@-select-" + "是回环数据,但不是主站单项回环，丢弃，tableName:{},isLoopback:{},主站单项回环：{}，needLoopback：{}",tableName,isLoopback,enableLoopbackRemedy,needLoopback);
+                             }
+                        }else {
+                            logger.info("@@@@-select-" + "是回环标记表数据，丢弃，tableName:" + tableName);
+                        }
+
+
                         break;
                     case TRANSACTIONEND:
                         if (!isLoopback || (enableLoopbackRemedy && needLoopback)) {
@@ -212,7 +229,7 @@ public class MessageParser {
         } catch (Exception e) {
             throw new SelectException(e);
         }
-
+        logger.info("@@@@-select-"+"解析数据后EventDatas:"+eventDatas.size());
         return eventDatas;
     }
 
