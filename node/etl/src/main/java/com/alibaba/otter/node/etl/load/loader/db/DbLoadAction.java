@@ -576,7 +576,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                             // 处理batch
                             final String sql = splitDatas.get(0).getSql();
                             int[] affects = new int[splitDatas.size()];
-                            logger.info("@@@@-load--阶段---执行批量JdbcTemplate操作：sql:"+sql);
+                            logger.info("@@@@-load--阶段---执行批量JdbcTemplate操作开始");
                             affects = (int[]) dbDialect.getTransactionTemplate().execute(new TransactionCallback() {
 
                                 public Object doInTransaction(TransactionStatus status) {
@@ -596,6 +596,8 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                                                 return splitDatas.size();
                                             }
                                         });
+
+                                        logger.info("@@@@-load--阶段---执行JdbcTemplate sql 入库:"+sql);
                                         interceptor.transactionEnd(context, splitDatas, dbDialect);
                                         return affects;
                                     } finally {
@@ -604,6 +606,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                                 }
 
                             });
+                            logger.info("@@@@-load--阶段---执行批量JdbcTemplate操作结束");
 
                             // 更新统计信息
                             for (int i = 0; i < splitDatas.size(); i++) {
@@ -612,7 +615,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                         } else {
                             final EventData data = splitDatas.get(0);// 直接取第一条
                             int affect = 0;
-                            logger.info("@@@@-load--阶段---执行JdbcTemplate操作：sql:"+data.getSql());
+                            logger.info("@@@@-load--阶段---执行JdbcTemplate操作开始");
                             affect = (Integer) dbDialect.getTransactionTemplate().execute(new TransactionCallback() {
 
                                 public Object doInTransaction(TransactionStatus status) {
@@ -627,6 +630,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                                                 doPreparedStatement(ps, dbDialect, lobCreator, data);
                                             }
                                         });
+                                        logger.info("@@@@-load--阶段---执行JdbcTemplate sql 入库:"+data.getSql());
                                         interceptor.transactionEnd(context, Arrays.asList(data), dbDialect);
                                         return affect;
                                     } finally {
@@ -634,6 +638,7 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
                                     }
                                 }
                             });
+                            logger.info("@@@@-load--阶段---执行JdbcTemplate操作结束");
                             // 更新统计信息
                             processStat(data, affect, false);
                         }

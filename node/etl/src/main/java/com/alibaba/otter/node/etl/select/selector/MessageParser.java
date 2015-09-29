@@ -91,7 +91,7 @@ public class MessageParser {
                                        && pipelineParameter.getRemedyAlgorithm().isLoopback();
         boolean isLoopback = false;
         boolean needLoopback = false; //是否回环 --判断是否属于需要loopback处理的类型，只处理正常otter同步产生的回环数据，因为会有业务方手工屏蔽同步的接口，避免回环
-        logger.info("---Otter select解析数据,是否回环:{},{},",enableLoopbackRemedy,pipeline.getParameters());
+        logger.info("---Otter select解析数据,是否主站单项回环:{},{},{},",enableLoopbackRemedy,enableLoopbackRemedy?"[同步回环数据]":"[丢弃回环数据]",pipeline.getParameters());
         long now = new Date().getTime();
         try {
             for (Entry entry : datas) {
@@ -110,7 +110,7 @@ public class MessageParser {
                                 if (loopback == 2) {
                                     needLoopback |= true; // 只处理正常同步产生的回环数据
                                 }
-                                logger.info("@@@@-select-" + "是同步标注表，tableName:{}，loopback:{}" , tableName,loopback);
+                                logger.info("@@@@-select-mark tableName:{}，loopback:{}" , tableName,loopback);
                                 isLoopback |= loopback > 0;
                             }
                         }
@@ -595,8 +595,8 @@ public class MessageParser {
      * 如果变更后的主键为空，直接从old中拷贝<br>
      * 如果变更前后的主键数目不相等，把old中存在而new中不存在的主键拷贝到new中.
      * 
-     * @param oldKeys
-     * @param newKeys
+     * @param oldKeyColumns
+     * @param keyColumns
      */
     private void checkUpdateKeyColumns(Map<String, EventColumn> oldKeyColumns, Map<String, EventColumn> keyColumns) {
         // 在变更前没有主键的情况

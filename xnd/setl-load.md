@@ -32,3 +32,6 @@
 (7).LoadInterceptor.commit()
 
 (8).LoadInterceptor.error()，有错误的时候执行
+
+
+

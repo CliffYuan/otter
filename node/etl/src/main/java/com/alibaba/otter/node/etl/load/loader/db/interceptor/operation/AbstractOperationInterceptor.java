@@ -120,7 +120,7 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
             String sql = needInfo ? updateInfoSql : updateSql;
             threadLocal.remove();// 进入之前先清理
             int threadId = currentId();
-            updateMark(context, dialect, threadId, sql, needInfo, hint);
+            updateMark(context, dialect, threadId, sql, needInfo, hint,true);
             threadLocal.set(threadId);
         }
     }
@@ -131,7 +131,7 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
             String hint = currentDatas.get(0).getHint();
             String sql = needInfo ? clearInfoSql : clearSql;
             Integer threadId = threadLocal.get();
-            updateMark(context, dialect, threadId, sql, needInfo, hint);
+            updateMark(context, dialect, threadId, sql, needInfo, hint,false);
             threadLocal.remove();
         }
     }
@@ -140,7 +140,7 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
      * 更新一下事务标记
      */
     private void updateMark(DbLoadContext context, DbDialect dialect, int threadId, String sql, boolean needInfo,
-                            String hint) {
+                            String hint,boolean start) {
         Identity identity = context.getIdentity();
         Channel channel = context.getChannel();
         // 获取dbDialect
@@ -162,14 +162,14 @@ public abstract class AbstractOperationInterceptor extends AbstractLoadIntercept
             if (hint != null) {
                 esql = hint + esql;
             }
-            logger.info("########回环标记#######---updateInfo-添加mark标记,sql:{},值：{},{},{}", new Object[] {esql, threadId, channel.getId(), info });
+            logger.info("########回环标记#######--添加mark标记--自定义channelInfo,{},sql:{},值：{},{},{}", new Object[] {start?"begin":"end", esql, threadId, channel.getId(), info });
             affectedCount = dialect.getJdbcTemplate().update(esql, new Object[] { threadId, channel.getId(), info });
         } else {
             String esql = MessageFormat.format(sql, new Object[] { markTableName, markTableColumn });
             if (hint != null) {
                 esql = hint + esql;
             }
-            logger.info("########回环标记#######---update-添加mark标记,sql:{},值：{},{}", new Object[] { esql,threadId, channel.getId() });
+            logger.info("########回环标记#######--添加mark标记,{},sql:{},值：{},{}", new Object[] { start?"begin":"end",esql,threadId, channel.getId() });
             affectedCount = dialect.getJdbcTemplate().update(esql, new Object[] { threadId, channel.getId() });
         }
 
