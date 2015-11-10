@@ -66,8 +66,30 @@
     List<PipeKey> nextKeys = rowDataPipeDelegate.put(dbBatch, etlEventData.getNextNid());
     etlEventData.setDesc(nextKeys);
 
-(4).整体格式
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+(4).整体处理模版格式
+     //获取标示
+     final EtlEventData etlEventData = arbitrateEventService.extractEvent().await(pipelineId);
+        {
+         // 符合条件的processId
+         ExtractStageListener extractStageListener = ArbitrateFactory.getInstance(pipelineId, ExtractStageListener.class);
+         Long processId = extractStageListener.waitForProcess();
 
+         // 转化为EtlEventData
+         byte[] data = zookeeper.readData(path);
+         EtlEventData eventData = JsonUtils.unmarshalFromByte(data, EtlEventData.class);
+        }
+     //获取真实数据
+     List<PipeKey> keys = (List<PipeKey>) etlEventData.getDesc();
+     DbBatch dbBatch = rowDataPipeDelegate.get(keys);
+     //处理数据
+     ....
+     //传递转化后的数据
+     List<PipeKey> nextKeys = rowDataPipeDelegate.put(dbBatch, etlEventData.getNextNid());
+     etlEventData.setDesc(nextKeys);
+
+     //通知下一个处理流程
+     arbitrateEventService.transformEvent().single(etlEventData);
 
 
 ##### 数据传输
