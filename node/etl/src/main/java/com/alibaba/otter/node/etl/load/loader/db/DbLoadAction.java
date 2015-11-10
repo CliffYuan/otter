@@ -545,6 +545,11 @@ public class DbLoadAction implements InitializingBean, DisposableBean {
             }
         }
 
+        /**
+         * 1.批量的时候直接全部添加
+         *
+         * @return
+         */
         private Exception doCall() {
             RuntimeException error = null;
             ExecuteResult exeResult = null;

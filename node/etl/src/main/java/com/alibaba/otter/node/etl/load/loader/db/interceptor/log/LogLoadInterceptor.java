@@ -62,15 +62,15 @@ public class LogLoadInterceptor extends AbstractLoadInterceptor<DbLoadContext, E
                 try {
                     MDC.put(OtterConstants.splitPipelineLoadLogFileKey,
                             String.valueOf(context.getIdentity().getPipelineId()));
-                    logger.info(SEP + "****************************************************" + SEP);
+                    logger.info("********************LogLoadInterceptor.commit()开始********************************");
                     logger.info(dumpContextInfo("successed", context));
-                    logger.info("****************************************************" + SEP);
-                    logger.info("* process Data  *" + SEP);
+                    logger.info("****************************************************" );
+                    logger.info("* 1) show process Data  *" );
                     logEventDatas(context.getProcessedDatas());
-                    logger.info("-----------------" + SEP);
-                    logger.info("* failed Data *" + SEP);
+                    logger.info("-----------------" );
+                    logger.info("* 2) failed Data *" );
                     logEventDatas(context.getFailedDatas());
-                    logger.info("****************************************************" + SEP);
+                    logger.info("************************LogLoadInterceptor.commit()结束****************************");
                 } finally {
                     MDC.remove(OtterConstants.splitPipelineLoadLogFileKey);
                 }

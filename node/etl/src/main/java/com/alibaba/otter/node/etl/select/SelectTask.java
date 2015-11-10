@@ -308,7 +308,7 @@ public class SelectTask extends GlobalTask {
                             etlEventData.setDesc(pipeKeys);//真实传输中只关联pipe中的key
                             etlEventData.setNumber((long) eventData.size());
                             etlEventData.setFirstTime(startTime); // 使用原始数据的第一条
-                            etlEventData.setBatchId(message.getId());
+                            etlEventData.setBatchId(message.getId());//
 
                             if (profiling) {
                                 Long profilingEndTime = System.currentTimeMillis();

@@ -208,7 +208,7 @@ public class CanalEmbedSelector implements OtterSelector {
             }
         });
         canalServer.start();
-
+        logger.info("---otter---Canal pipeline:{} 启动核心参数：filter:{}",pipeline.getName(),filter);
         canalServer.start(destination);
         this.clientIdentity = new ClientIdentity(destination, pipeline.getParameters().getMainstemClientId(), filter);
         canalServer.subscribe(clientIdentity);// 发起一次订阅

@@ -49,16 +49,34 @@
 
 
 ##### 3)channel,pipeline对应的处理过程
-/otter/channel/4/7
-[lock, process, termin, remedy, mainstem]
-/otter/channel/4/7/mainstem
-    节点内容：{"active":true,"nid":1,"pipelineId":7,"status":"OVERTAKE"}
+channel在zookeeper中的数据
 
-/otter/channel/4/8
-[lock, process, termin, remedy, mainstem]
-
-4对应channel。
+4对应channel
 7,8对应pipeline
+
+(1)/otter/channel/4/7
+        [lock, process, termin, remedy, mainstem]表示为子节点
+   /otter/channel/4/8
+        [lock, process, termin, remedy, mainstem]表示为子节点
+
+
+   [lock,
+   process,  //当前在处理的processId处于那个状态
+   termin,
+   remedy,
+   mainstem  //pipeline运行情况
+   ]
+
+(2)/otter/channel/4/7/mainstem：表示当前的pipeline的运行情况。
+    节点内容：{"active":true,     --处于运行状态
+             "nid":1,           --运行的node节点
+             "pipelineId":7,    --pipeline id
+             "status":"OVERTAKE"--OVERTAKE表示已追上，TAKEING表示追赶中   （主道控制信号的状态）
+            }
+
+
+
+
 
 
 

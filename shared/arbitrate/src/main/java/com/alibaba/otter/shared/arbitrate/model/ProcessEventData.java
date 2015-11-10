@@ -26,12 +26,12 @@ import java.util.Map;
 public class ProcessEventData extends PipelineEventData {
 
     private static final long serialVersionUID = 3384175022262480571L;
-    private Long              processId;                              // 同步进程id
+    private Long              processId;                              // 同步进程id                  //
     private Long              startTime;                              // 同步开始时间
     private Long              endTime;                                // 同步结束时间
     private Long              firstTime;                              // 第一条记录的时间
 
-    private Long              batchId;                                // 批处理Id，对应一批处理的数据
+    private Long              batchId;                                // 批处理Id，对应一批处理的数据,  // 即canal生成的messageId,/otter/canal/destinations/{0}/{1}/mark add xnd
     private Long              number;                                 // 对应调度的记录数
     private Long              size;                                   // 对应调度的数据大小
     private Map               exts;                                   // 对应的扩展数据
